@@ -33,7 +33,6 @@ This roadmap outlines the high-level phases to implement the real-time messaging
 |           | participants  | UUID[] (array)         | Array of user IDs participating in the thread    |
 |           | createdAt     | Timestamp              | When the thread was created                      |
 |           | updatedAt     | Timestamp              | Last update timestamp (e.g., when a new message arrives) |
-
 | **messages** | id            | UUID (Primary Key)     | Unique identifier for each message               |
 |            | threadId      | UUID (Foreign Key)     | References `threads.id`                          |
 |            | senderId      | UUID (Foreign Key)     | References `users.id`                            |
