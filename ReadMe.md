@@ -29,7 +29,6 @@ This roadmap outlines the high-level phases to implement the real-time messaging
 | **users**   | id            | UUID (Primary Key)     | Unique identifier for each user                  |
 |           | username      | String, Unique         | User’s login name                                |
 |           | createdAt     | Timestamp              | When the user was created                        |
-
 | **threads** | id            | UUID (Primary Key)     | Unique identifier for each thread                |
 |           | participants  | UUID[] (array)         | Array of user IDs participating in the thread    |
 |           | createdAt     | Timestamp              | When the thread was created                      |
