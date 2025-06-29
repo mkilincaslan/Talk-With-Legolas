@@ -28,9 +28,8 @@ npm test
 | Runtime | Node.js, TypeScript |
 | API | tRPC, WebSocket |
 | Database | PostgreSQL, Prisma ORM |
-| Testing | Vitest |
 | Container | Docker, Docker Compose |
-| Security | JWT, Bcrypt |
+| Security | JWT, Crypto |
 
 ## Database Models
 
@@ -38,24 +37,28 @@ npm test
 erDiagram
     User {
         string id PK
-        string username
+        string username UK
         string password
+        boolean online
         datetime createdAt
     }
     Thread {
         string id PK
-        string name
+        string[] participants
         datetime createdAt
+        datetime updatedAt
     }
     Message {
         string id PK
         string content
-        string userId FK
+        string senderId FK
         string threadId FK
+        boolean unread
         datetime createdAt
     }
     User ||--o{ Message : sends
     Thread ||--o{ Message : contains
+    User }|--o{ Thread : participates
 ```
 
 ## API Endpoints
@@ -128,7 +131,6 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
 
 # Security
 JWT_SECRET=your-secret-key    # JWT signing key        # Token expiration time
-
 ```
 
 ## Docker Deployment
