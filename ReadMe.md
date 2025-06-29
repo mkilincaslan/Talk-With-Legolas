@@ -2,6 +2,25 @@
 
 A real-time chat application built with modern web technologies, featuring instant messaging, presence indicators, and a beautiful user interface.
 
+🔗 **[Try the Live App](https://talk-with-legolas-frontend.onrender.com/)**
+
+## Default Users
+
+You can log in with any of these pre-configured users:
+
+| Username  | Password    |
+|-----------|------------|
+| Legolas   | Thranduil  |
+| Aragorn   | Aravir     |
+| Gimli     | Gloin      |
+| Gandalf   | White Rider|
+| Frodo     | Elf-friend |
+| Samwise   | Shire      |
+| Boromir   | Gondor     |
+| Elrond    | Rivendell  |
+| Galadriel | Noldor     |
+| Sauron    | Dark Lord  |
+
 ## Overview
 
 Talk With Legolas is a full-stack chat application that enables real-time communication between users. The application showcases modern web development practices and real-time features including:
