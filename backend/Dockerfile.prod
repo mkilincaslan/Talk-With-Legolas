@@ -32,20 +32,28 @@ WORKDIR /app
 # Install OpenSSL
 RUN apk add --no-cache openssl
 
-# Copy package files
+# Copy package files and prisma
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY src/seed ./src/seed/
 
-# Install only production dependencies
-RUN npm ci --only=production
+# Install production dependencies and required build tools
+RUN npm ci --only=production && \
+    npm install typescript ts-node @types/node prisma @prisma/client --save-prod
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Create startup script with dynamic port
+# Create startup script with proper migration and seeding
 RUN echo '#!/bin/sh\n\
-npx prisma migrate deploy\n\
+echo "Waiting for database to be ready..."\n\
+sleep 10\n\
+echo "Generating Prisma Client..."\n\
+npx prisma generate\n\
+echo "Running database migrations..."\n\
+npx prisma migrate reset --force\n\
+echo "Starting application..."\n\
 export PORT=${PORT:-3000}\n\
 npm run start\n\
 ' > /app/start.sh && chmod +x /app/start.sh
