@@ -1,0 +1,41 @@
+FROM node:20-alpine
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Install OpenSSL and other production dependencies
+RUN apk add --no-cache openssl
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies (production only)
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build TypeScript
+RUN npm run build
+
+# Create startup script with dynamic port
+RUN echo '#!/bin/sh\n\
+npx prisma migrate deploy\n\
+export PORT=${PORT:-3000}\n\
+npm run start\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+# Set proper permissions
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Start the application with migrations
+CMD ["/app/start.sh"] 
