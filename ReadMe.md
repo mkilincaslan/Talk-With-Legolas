@@ -12,6 +12,19 @@ Talk With Legolas is a full-stack chat application that enables real-time commun
 - JWT-based authentication
 - Clean and intuitive user interface
 
+## Development Process
+
+This project was developed with the assistance of modern AI tools:
+
+- **Cursor (Claude-3.5-Sonnet)**: Primary development environment and AI pair programming assistant
+- **Bolt.new**: Initial project scaffolding and architecture planning
+- **ChatGPT-4**: Project roadmap and planning
+
+The combination of these AI tools helped streamline the development process while maintaining high code quality and following best practices. Each tool contributed in different ways:
+- Cursor provided real-time code suggestions and debugging assistance
+- Bolt.new helped establish the initial project structure and technical decisions
+- ChatGPT-4 assisted in brainstorming and refining the project's architecture and roadmap
+
 ## Screenshots
 
 ### Login Screen
