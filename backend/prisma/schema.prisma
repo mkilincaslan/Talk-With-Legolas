@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @map("created_at")
+  online    Boolean   @default(false)
+  threads   Thread[]  @relation("ThreadParticipants")
+  messages  Message[] @relation("MessageSender")
+
+  @@map("users")
+}
+
+model Thread {
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  participants User[]    @relation("ThreadParticipants")
+  messages     Message[]
+
+  @@map("threads")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  unread    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  threadId  String   @map("thread_id")
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId  String   @map("sender_id")
+
+  @@map("messages")
+} 
