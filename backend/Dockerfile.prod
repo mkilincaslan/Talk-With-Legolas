@@ -1,19 +1,16 @@
-FROM node:20-alpine
-
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+FROM node:20-alpine as builder
 
 WORKDIR /app
 
-# Install OpenSSL and other production dependencies
+# Install OpenSSL and build dependencies
 RUN apk add --no-cache openssl
 
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies (production only)
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies)
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -23,6 +20,28 @@ RUN npx prisma generate
 
 # Build TypeScript
 RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Create startup script with dynamic port
 RUN echo '#!/bin/sh\n\
