@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -9,36 +9,35 @@ RUN apk add --no-cache openssl
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install all dependencies (including dev dependencies)
+# Install all dependencies
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
+# Generate Prisma client and build
+RUN npx prisma generate && \
+    npm run build
 
-# Build TypeScript
-RUN npm run build
-
-# Install production dependencies and required tools
+# Install production dependencies
 RUN npm ci --only=production && \
     npm install typescript ts-node @types/node prisma @prisma/client --save-prod
 
-# Create startup script with proper migration and seeding
-RUN echo '#!/bin/sh\n\
-echo "Waiting for database to be ready..."\n\
-sleep 10\n\
-echo "Generating Prisma Client..."\n\
-npx prisma generate\n\
-echo "Running database migrations..."\n\
-npx prisma migrate reset --force\n\
-echo "Starting application..."\n\
-export PORT=${PORT:-3000}\n\
-npm run start\n\
-' > /app/start.sh && chmod +x /app/start.sh
+# Create and set up start script
+COPY <<EOF /app/start.sh
+#!/bin/sh
+set -e
+echo "Waiting for database to be ready..."
+sleep 5
+echo "Running database migrations..."
+npx prisma migrate deploy
+echo "Starting application..."
+exec npm run start
+EOF
+
+RUN chmod +x /app/start.sh
 
 EXPOSE 3000
 
-# Start the application with migrations
-CMD ["/app/start.sh"] 
+# Start the application
+CMD ["/bin/sh", "/app/start.sh"] 
