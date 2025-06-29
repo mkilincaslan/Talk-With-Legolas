@@ -1,0 +1,28 @@
+/**
+  * Specific configuration for Vite and other Node.js-related files
+  * Uses newer ES2022/ES2023 features
+  * Only includes vite.config.ts
+  * Doesn't include DOM-related settings since it's for Node.js environment
+**/
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}

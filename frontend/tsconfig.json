@@ -1,0 +1,11 @@
+/**
+ * Root tsconfig.json file for the frontend project
+ * References tsconfig.app.json and tsconfig.node.json for specific configurations
+ */
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
