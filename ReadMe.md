@@ -1,98 +1,82 @@
 # Talk With Legolas
 
-# Roadmap
+A real-time chat application built with modern web technologies, featuring instant messaging, presence indicators, and a beautiful user interface.
 
-This roadmap outlines the high-level phases to implement the real-time messaging app “Talk With Legolas” using the chosen tech stack. It focuses on major milestones and includes database table definitions and API endpoints.
+## Overview
 
----
+Talk With Legolas is a full-stack chat application that enables real-time communication between users. The application showcases modern web development practices and real-time features including:
 
-## 1. Repository & Project Structure
-- Initialize Git repository named “TalkWithLegolas”.
-- Establish directory layout for backend and frontend.
-- Define essential environment variables and configuration placeholders.
-- Document technology choices and overall approach.
+- Real-time messaging with WebSocket
+- User presence indicators (online/offline status)
+- Typing indicators
+- JWT-based authentication
+- Clean and intuitive user interface
 
----
+## Screenshots
 
-## 2. Backend Foundation
-- Set up a Node.js + TypeScript project.
-- Configure Prisma ORM with Postgres (via Docker) and prepare database schema models.
-- Implement JWT-based authentication with seeded users.
-- Establish tRPC server structure and context for protected routes.
-- Prepare WebSocket (tRPC subscription) support for real-time messaging.
+### Login Screen
+![Login Screen](./media/LoginScreenSS.png)
 
-### Database Tables
+### Chat List
+![Chat List](./media/ChatListSS.png)
 
+### Chat Screen
+![Chat Screen](./media/ChatScreenSS.png)
 
-| Table     | Column        | Type                   | Description                                      |
-|-----------|---------------|------------------------|--------------------------------------------------|
-| **users**   | id            | UUID (Primary Key)     | Unique identifier for each user                |
-|           | username      | String, Unique         | User’s login name                                |
-|           | password      | String                 | User’s password                                  |
-|           | online        | Boolean                | The user's current online status                 | 
-|           | createdAt     | Timestamp              | When the user was created                        |
-| **threads** | id            | UUID (Primary Key)     | Unique identifier for each thread              |
-|           | participants  | UUID[] (array)         | Array of user IDs participating in the thread    |
-|           | createdAt     | Timestamp              | When the thread was created                      |
-|           | updatedAt     | Timestamp              | Last update timestamp (e.g., when a new message arrives) |
-| **messages** | id            | UUID (Primary Key)     | Unique identifier for each message             |
-|            | threadId      | UUID (Foreign Key)     | References `threads.id`                          |
-|            | senderId      | UUID (Foreign Key)     | References `users.id`                            |
-|            | content       | Text                   | Message content                                  |
-|            | unread        | Boolean                | Whether the message is unread or not            |
-|            | createdAt     | Timestamp              | When the message was sent                        | 
+## Technology Stack
 
----
+### Frontend
+- React with TypeScript
+- tRPC client for type-safe API calls
+- Tailwind CSS for styling
+- Vite for development and building
 
-## 3. Frontend Foundation
-- Set up React + TypeScript project via Vite.
-- Configure Tailwind CSS.
-- Initialize tRPC client integration and JWT storage in localStorage.
-- Create basic authentication context and login interface.
+[More details about the frontend →](./frontend/README.md)
 
----
+### Backend
+- Node.js with TypeScript
+- tRPC for type-safe API endpoints
+- Prisma with PostgreSQL for data management
+- WebSocket for real-time communication
+- Docker for containerization
 
-## 4. Core Messaging Features
-- Implement thread listing and “create new thread” functionality.
-- Implement chat view: fetching and displaying messages in chronological order.
-- Implement send-message API and UI integration.
+[More details about the backend →](./backend/README.md)
 
----
+## Features
 
-## 5. Real-Time Communication (with Presence & Typing)
-- Configure tRPC subscription for message events per thread.
-- Enable clients to subscribe to thread channels for real-time message delivery.
-- Implement online presence notifications:
-  - When a user connects (e.g., opens the app or chat), publish an “online” event to other participants in threads they share.
-  - When a user disconnects or becomes inactive, publish an “offline” event.
-- Implement typing indicators:
-  - When a user starts or stops typing in a chat, send a typing-status update to the server.
-  - Server publishes typing events to other subscribers in the same thread, so they can see “User is typing...” in real time.
-- Handle reconnection and missed events in a basic form (e.g., refetch recent state on reconnect).
+- **Secure Authentication**: JWT-based authentication system
+- **Real-time Messaging**: Instant message delivery using WebSocket
+- **User Presence**: See who's online in real-time
+- **Typing Indicators**: Know when others are typing
+- **Thread Management**: Organize conversations in threads
+- **Modern UI**: Clean and responsive design with Tailwind CSS
 
----
+## Getting Started
 
-## API Endpoints / Procedures
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/Talk-With-Legolas.git
+cd Talk-With-Legolas
+```
 
-| Procedure / Endpoint    | Type         | Auth Required | Input                             | Output / Description                                               |
-|-------------------------|--------------|---------------|-----------------------------------|----------------------------------------------------------------------|
-| **login**               | Mutation     | No            | `{ username: string }` | `{ token: string }` on success; error otherwise                     |
-| **getThreads**          | Query        | Yes           | ―                                 | Array of `{ threadId: UUID, otherUsernames: string[] }`             |
-| **createThread**        | Mutation     | Yes           | `{ otherUserId: string }`       | `{ threadId: UUID }`; creates new or returns existing thread        |
-| **getMessages**         | Query        | Yes           | `{ threadId: UUID }`              | Array of `{ id: UUID, senderId: UUID, content: string, createdAt: string }` in ascending order |
-| **sendMessage**         | Mutation     | Yes           | `{ threadId: UUID, content: string }` | `{ id: UUID, senderId: UUID, content: string, createdAt: string }`; saves message and triggers real-time publish |
-| **onMessage**           | Subscription | Yes           | `{ threadId: UUID }`              | Stream of `{ id: UUID, senderId: UUID, content: string, createdAt: string }` events as messages arrive |
+2. Set up the backend
+```bash
+cd backend
+npm install
+# Follow backend README for additional setup steps
+```
 
-- **Authentication**:  
-  - The `login` procedure returns a JWT.  
-  - All other procedures require the JWT (e.g., sent in `Authorization: Bearer <token>`) and verify the user before proceeding.
+3. Set up the frontend
+```bash
+cd frontend
+npm install
+# Follow frontend README for additional setup steps
+```
 
-- **Real-Time Messaging**:  
-  - Clients subscribe via `onMessage({ threadId })`.  
-  - The backend’s `sendMessage` mutation publishes new message events to that subscription channel.
+## License
 
-- **Presence & Typing**:  
-  - Clients subscribe via `onPresence({ threadId })` to receive online/offline events for participants in that thread.  
-  - Clients call `sendTypingStatus({ threadId, isTyping })` when the user starts/stops typing; backend publishes via `onTyping({ threadId })` so other participants see typing indicators.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
