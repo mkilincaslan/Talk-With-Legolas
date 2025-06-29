@@ -21,7 +21,9 @@ RUN npx prisma generate
 # Build TypeScript
 RUN npm run build
 
-EXPOSE 3000
+# Install production dependencies and required tools
+RUN npm ci --only=production && \
+    npm install typescript ts-node @types/node prisma @prisma/client --save-prod
 
 # Create startup script with proper migration and seeding
 RUN echo '#!/bin/sh\n\
@@ -35,6 +37,8 @@ echo "Starting application..."\n\
 export PORT=${PORT:-3000}\n\
 npm run start\n\
 ' > /app/start.sh && chmod +x /app/start.sh
+
+EXPOSE 3000
 
 # Start the application with migrations
 CMD ["/app/start.sh"] 
