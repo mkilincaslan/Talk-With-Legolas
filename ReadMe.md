@@ -26,18 +26,21 @@ This roadmap outlines the high-level phases to implement the real-time messaging
 
 | Table     | Column        | Type                   | Description                                      |
 |-----------|---------------|------------------------|--------------------------------------------------|
-| **users**   | id            | UUID (Primary Key)     | Unique identifier for each user                  |
+| **users**   | id            | UUID (Primary Key)     | Unique identifier for each user                |
 |           | username      | String, Unique         | User’s login name                                |
+|           | password      | String                 | User’s password                                  |
+|           | online        | Boolean                | The user's current online status                 | 
 |           | createdAt     | Timestamp              | When the user was created                        |
-| **threads** | id            | UUID (Primary Key)     | Unique identifier for each thread                |
+| **threads** | id            | UUID (Primary Key)     | Unique identifier for each thread              |
 |           | participants  | UUID[] (array)         | Array of user IDs participating in the thread    |
 |           | createdAt     | Timestamp              | When the thread was created                      |
 |           | updatedAt     | Timestamp              | Last update timestamp (e.g., when a new message arrives) |
-| **messages** | id            | UUID (Primary Key)     | Unique identifier for each message               |
+| **messages** | id            | UUID (Primary Key)     | Unique identifier for each message             |
 |            | threadId      | UUID (Foreign Key)     | References `threads.id`                          |
 |            | senderId      | UUID (Foreign Key)     | References `users.id`                            |
 |            | content       | Text                   | Message content                                  |
-|            | createdAt     | Timestamp              | When the message was sent                        |
+|            | unread        | Boolean                | Whether the message is unread or not            |
+|            | createdAt     | Timestamp              | When the message was sent                        | 
 
 ---
 
