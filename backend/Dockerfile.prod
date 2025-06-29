@@ -21,29 +21,7 @@ RUN npx prisma generate
 # Build TypeScript
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
-
-# Create non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-WORKDIR /app
-
-# Install OpenSSL
-RUN apk add --no-cache openssl
-
-# Copy package files and prisma
-COPY package*.json ./
-COPY prisma ./prisma/
-COPY src/seed ./src/seed/
-
-# Install production dependencies and required build tools
-RUN npm ci --only=production && \
-    npm install typescript ts-node @types/node prisma @prisma/client --save-prod
-
-# Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+EXPOSE 3000
 
 # Create startup script with proper migration and seeding
 RUN echo '#!/bin/sh\n\
@@ -57,12 +35,6 @@ echo "Starting application..."\n\
 export PORT=${PORT:-3000}\n\
 npm run start\n\
 ' > /app/start.sh && chmod +x /app/start.sh
-
-# Set proper permissions
-RUN chown -R appuser:appgroup /app
-
-# Switch to non-root user
-USER appuser
 
 # Start the application with migrations
 CMD ["/app/start.sh"] 
