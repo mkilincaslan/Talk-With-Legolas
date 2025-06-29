@@ -2,7 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install OpenSSL and build dependencies
+# Install OpenSSL
 RUN apk add --no-cache openssl
 
 # Copy package files
@@ -19,18 +19,34 @@ COPY . .
 RUN npx prisma generate && \
     npm run build
 
-# Install production dependencies
-RUN npm ci --only=production && \
-    npm install typescript ts-node @types/node prisma @prisma/client --save-prod
-
-# Create and set up start script
+# Create and set up start script with database initialization
 COPY <<EOF /app/start.sh
 #!/bin/sh
 set -e
+
 echo "Waiting for database to be ready..."
-sleep 5
-echo "Running database migrations..."
+sleep 10
+
+if [ -z "$DATABASE_URL" ]; then
+    echo "Error: DATABASE_URL environment variable is not set"
+    exit 1
+fi
+
+# Regenerate Prisma Client to ensure it's in sync with the latest schema
+echo "Regenerating Prisma Client..."
+npx prisma generate
+
+echo "Setting up database..."
+# Run database migrations
 npx prisma migrate deploy
+
+
+# Run database seed if SEED_DATABASE is set to true
+if [ "$SEED_DATABASE" = "true" ]; then
+    echo "Seeding database..."
+    npx prisma db seed
+fi
+
 echo "Starting application..."
 exec npm run start
 EOF
