@@ -24,11 +24,23 @@ COPY <<EOF /app/start.sh
 #!/bin/sh
 set -e
 
+echo "Checking environment variables..."
+echo "NODE_ENV: \${NODE_ENV}"
+echo "Database URL exists: \$([ ! -z "\${DATABASE_URL}" ] && echo 'Yes' || echo 'No')"
+
 echo "Waiting for database to be ready..."
 sleep 10
 
-if [ -z "$DATABASE_URL" ]; then
+# Try to read DATABASE_URL from different sources
+if [ -z "\${DATABASE_URL}" ] && [ -f .env ]; then
+    echo "Loading DATABASE_URL from .env file..."
+    export \$(cat .env | grep DATABASE_URL)
+fi
+
+if [ -z "\${DATABASE_URL}" ]; then
     echo "Error: DATABASE_URL environment variable is not set"
+    echo "Current environment variables:"
+    env | grep -v "PASSWORD\|KEY\|SECRET"
     exit 1
 fi
 
@@ -40,9 +52,8 @@ echo "Setting up database..."
 # Run database migrations
 npx prisma migrate deploy
 
-
 # Run database seed if SEED_DATABASE is set to true
-if [ "$SEED_DATABASE" = "true" ]; then
+if [ "\${SEED_DATABASE}" = "true" ]; then
     echo "Seeding database..."
     npx prisma db seed
 fi
@@ -54,6 +65,10 @@ EOF
 RUN chmod +x /app/start.sh
 
 EXPOSE 3000
+
+# Make sure environment variables are passed through
+ENV NODE_ENV=production
+ENV DATABASE_URL=\${DATABASE_URL}
 
 # Start the application
 CMD ["/bin/sh", "/app/start.sh"] 
